@@ -24,6 +24,7 @@
 
 #include "stdio.h"
 #include "string.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,27 +48,24 @@ ADC_HandleTypeDef hadc1;
 CAN_HandleTypeDef hcan;
 
 UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;
-UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-uint32_t adc1, adc2;
+uint32_t adc1;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_ADC1_Init(void);
 static void MX_CAN_Init(void);
 static void MX_USART1_UART_Init(void);
-static void MX_USART2_UART_Init(void);
-static void MX_USART3_UART_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 
 // ************************* CAN CODES ***************************
 
@@ -83,6 +81,7 @@ uint32_t TxMailbox;
 
 uint8_t RxData[8];
 uint32_t sender_info[5];
+
 
 uint8_t cell_1;
 uint8_t cell_2;
@@ -101,20 +100,23 @@ uint8_t cell_12;
 
 uint8_t cell_13;
 uint8_t cell_14;
+uint8_t cell_15;
+uint8_t cell_16;
+
+uint8_t cell_17;
+uint8_t cell_18;
+uint8_t cell_19;
+uint8_t cell_20;
 // ************************* CAN CODES END***************************
 
 // ************************* NEXTION FUNCTIONS ***************************
 uint8_t Cmd_End[3] = {0xFF, 0xFF, 0xFF};
 uint32_t speed_fixed;
-uint32_t ledYandiMi;
-//char bkcmd[7] = "bkcmd=1";
 
 void Nextion_SendString(char * Id, char * String)
 {
 	char buf[50];
     int len = sprintf(buf, "%s.txt=\"%s\"",Id, String);
-
-//	HAL_UART_Transmit(&huart1, (uint8_t *)bkcmd, 7, 1000);
 	HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 1000);
 	HAL_UART_Transmit(&huart1, Cmd_End, 3, 1000);
 }
@@ -123,8 +125,6 @@ void NextionSendNumber(char *Id, int number)
 {
     char buf[50];
     int len = sprintf(buf, "%s.val=%d", Id, number);
-
-//    HAL_UART_Transmit(&huart1, (uint8_t *)bkcmd, 7, 1000);
     HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 1000);
     HAL_UART_Transmit(&huart1, Cmd_End, 3, 1000);
 }
@@ -133,8 +133,6 @@ void NextionSetVisibility(char *Id, int visibility)
 {
     char buf[50];
     int len = sprintf(buf, "vis %s,%d", Id, visibility);
-
-//    HAL_UART_Transmit(&huart1, (uint8_t *)bkcmd, 7, 1000);
     HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 1000);
     HAL_UART_Transmit(&huart1, Cmd_End, 3, 1000);
 }
@@ -149,7 +147,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	  )
 	{
 		HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, SET);
-		ledYandiMi += 1;
 	}
 
 	if(
@@ -163,8 +160,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	}
 
 	HAL_UART_Receive_IT(&huart1, RxNextionEvent, 4);
-	interrupt_counter += 1;
 }
+
 
 
 /* USER CODE END 0 */
@@ -176,8 +173,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-	speed_fixed = speed_fixed;
-	ledYandiMi = ledYandiMi;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -186,7 +182,9 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+	HAL_CAN_Start(&hcan);
+	HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+	HAL_UART_Receive_IT(&huart1, RxNextionEvent, 4);
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -198,108 +196,72 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC1_Init();
   MX_CAN_Init();
   MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
-  MX_USART3_UART_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-
 	TxHeader.DLC = 8;
 	TxHeader.IDE = CAN_ID_STD;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.StdId = 0X401;
 
-
-	HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 	HAL_CAN_Start(&hcan);
-	HAL_Delay(100);
-
-
 	HAL_UART_Receive_IT(&huart1, RxNextionEvent, 4);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-    {
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-	  ledYandiMi = ledYandiMi;
-	  HAL_ADC_Start(&hadc1);
-	  HAL_ADC_PollForConversion(&hadc1, 100);
-	  adc1 = HAL_ADC_GetValue(&hadc1);
+	HAL_ADC_Start(&hadc1);
+	HAL_ADC_PollForConversion(&hadc1, 100);
+	adc1 = HAL_ADC_GetValue(&hadc1);
+	speed_fixed = ((adc1 * 80) / 4096);
 
 
-  	  HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &receiver_structure, RxData);
-  	  sender_info[0] = receiver_structure.StdId;
-  	  sender_info[1] = receiver_structure.ExtId;
-  	  sender_info[2] = receiver_structure.IDE;
-  	  sender_info[3] = receiver_structure.RTR;
-  	  sender_info[4] = receiver_structure.DLC;
-  	  // receiver_structure.StdId == 880 &&
-  	  if(RxData[0] == 1) {
-  		  cell_1 = RxData[1];
-  		  cell_2 = RxData[2];
-  		  cell_3 = RxData[3];
-  		  cell_4 = RxData[4];
 
-  		  cell_5 = RxData[5];
-  		  cell_6 = RxData[6];
-  		  cell_7 = RxData[7];
+	HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &receiver_structure, RxData);
+	sender_info[0] = receiver_structure.StdId;
+	sender_info[1] = receiver_structure.ExtId;
+	sender_info[2] = receiver_structure.IDE;
+	sender_info[3] = receiver_structure.RTR;
+	sender_info[4] = receiver_structure.DLC;
 
+  	if(RxData[0] == 1) {
   		for(int i = 0; i < 7; i++) {
-  		    char buffer[10];  // Bir sayıyı metne dönüştürmek için kullanılacak bir tampon
-  		    sprintf(buffer, "j%d", i + 1);  // "j1", "j2", ..., "j8" şeklinde metin oluştur
-  		    NextionSendNumber(buffer, RxData[i + 1]);  // Oluşturulan metni ve RxData dizisindeki değeri gönder
+			char buffer[10];  // Bir sayıyı metne dönüştürmek için kullanılacak bir tampon
+			sprintf(buffer, "j%d", i + 1);  // "j1", "j2", ..., "j8" şeklinde metin oluştur
+			NextionSendNumber(buffer, RxData[i + 1]);  // Oluşturulan metni ve RxData dizisindeki değeri gönder
   		}
+  	}
 
-  	  }
-
-  	  else if(RxData[0] == 2){
-  		  cell_8 = RxData[1];
-  		  cell_9 = RxData[2];
-  		  cell_10 = RxData[3];
-  		  cell_11 = RxData[4];
-
-  		  cell_12 = RxData[5];
-  		  cell_13 = RxData[6];
-  		  cell_14 = RxData[7];
-
+  	else if(RxData[0] == 2){
   		for(int i = 0; i < 7; i++) {
 			char buffer[10];  // Bir sayıyı metne dönüştürmek için kullanılacak bir tampon
 			sprintf(buffer, "j%d", i + 8);  // "j1", "j2", ..., "j8" şeklinde metin oluştur
 			NextionSendNumber(buffer, RxData[i + 1]);  // Oluşturulan metni ve RxData dizisindeki değeri gönder
 		}
-  	  }
-		NextionSetVisibility("beniaksyebagla", 0);
-		NextionSetVisibility("bataryauyari", 0);
+  	}
 
 
-		speed_fixed = ((adc1 * 80) / 4096);
 
-		ledYandiMi = ledYandiMi;
+  	NextionSetVisibility("beniaksyebagla", 0);
+	NextionSetVisibility("bataryauyari", 0);
 
-		if(speed_fixed <= 60) {
-			NextionSendNumber("n11", speed_fixed);
-			NextionSendNumber("z0", (3 * (speed_fixed / 2)) + 270);
-		}
+	if(speed_fixed <= 60) {
+		NextionSendNumber("n11", speed_fixed);
+		NextionSendNumber("z0", (3 * (speed_fixed / 2)) + 270);
+	}
 
-		if(speed_fixed > 60) {
-			NextionSendNumber("n11", speed_fixed);
-			NextionSendNumber("z0", (3 * (speed_fixed / 2)) - 90);
-		}
-
-		NextionSendNumber("deneme", speed_fixed);
-
-
-		HAL_UART_Transmit(&huart2, RxData, 8, 200);
-
-		HAL_Delay(1000);
-    }
+	if(speed_fixed > 60) {
+		NextionSendNumber("n11", speed_fixed);
+		NextionSendNumber("z0", (3 * (speed_fixed / 2)) - 90);
+	}
+  }
   /* USER CODE END 3 */
 }
 
@@ -428,8 +390,6 @@ static void MX_CAN_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN_Init 2 */
-
-
 	CAN_FilterTypeDef can_filter_structure;
 
 	can_filter_structure.FilterActivation = CAN_FILTER_ENABLE;
@@ -444,8 +404,6 @@ static void MX_CAN_Init(void)
 	can_filter_structure.SlaveStartFilterBank = 0;
 
 	HAL_CAN_ConfigFilter(&hcan, &can_filter_structure);
-
-
 
   /* USER CODE END CAN_Init 2 */
 
@@ -481,72 +439,6 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
-
-}
-
-/**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 9600;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
-
-}
-
-/**
-  * @brief USART3 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART3_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART3_Init 0 */
-
-  /* USER CODE END USART3_Init 0 */
-
-  /* USER CODE BEGIN USART3_Init 1 */
-
-  /* USER CODE END USART3_Init 1 */
-  huart3.Instance = USART3;
-  huart3.Init.BaudRate = 9600;
-  huart3.Init.WordLength = UART_WORDLENGTH_8B;
-  huart3.Init.StopBits = UART_STOPBITS_1;
-  huart3.Init.Parity = UART_PARITY_NONE;
-  huart3.Init.Mode = UART_MODE_TX;
-  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart3) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART3_Init 2 */
-
-  /* USER CODE END USART3_Init 2 */
 
 }
 

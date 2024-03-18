@@ -103,11 +103,15 @@ int main(void)
   TxHeader.DLC = 8;
   TxHeader.IDE = CAN_ID_STD;
   TxHeader.RTR = CAN_RTR_DATA;
-  TxHeader.StdId = 0X406;
+  TxHeader.StdId = 0X407;
 
 HAL_CAN_Start(&hcan);
 
 uint8_t a = 0;
+
+int getRandomNumber() {
+	return (HAL_GetTick() % 11) + 40;
+}
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -120,47 +124,50 @@ uint8_t a = 0;
 		while(1) {
 			// Packet ID 1 (First battery cells part)
 			HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &receiver_structure, RxData);
-			Transmitted_Data[0] = 3;
+			Transmitted_Data[0] = 1;
 			// Packet 1 Content
-			Transmitted_Data[1] = 11;
+			Transmitted_Data[1] = getRandomNumber();
 			Transmitted_Data[2] = a;
-			Transmitted_Data[3] = 33;
+			Transmitted_Data[3] = getRandomNumber() + 4;
 
-			Transmitted_Data[4] = 44;
-			Transmitted_Data[5] = 55;
-			Transmitted_Data[6] = 6;
-			Transmitted_Data[7] = 7;
-			HAL_Delay(10);
+			Transmitted_Data[4] = getRandomNumber() - 1;
+			Transmitted_Data[5] = getRandomNumber() + 3;
+			Transmitted_Data[6] = getRandomNumber() - 4;
+			Transmitted_Data[7] = getRandomNumber() + 3;
+			HAL_Delay(12);
 
-			if(RxData[1] == 3) {
+			if(RxData[1] == 1) {
 				HAL_CAN_AddTxMessage(&hcan, &TxHeader, Transmitted_Data, &TxMailbox);
 				RxData[1] = 0;
-				HAL_Delay(10);
+				HAL_Delay(12);
 			}
 
 
 
 			HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &receiver_structure, RxData);
 			// Packet ID 2 (Second battery cells part)
-			Transmitted_Data[0] = 44;
+			Transmitted_Data[0] = 2;
 			// Packet 2 Content
-			Transmitted_Data[1] = 88;
+			Transmitted_Data[1] = getRandomNumber() + 3;
 			Transmitted_Data[2] = a;
-			Transmitted_Data[3] = 100;
+			Transmitted_Data[3] = getRandomNumber() - 4;
 
-			Transmitted_Data[4] = 111;
-			Transmitted_Data[5] = 122;
-			Transmitted_Data[6] = 133;
-			Transmitted_Data[7] = 144;
-			HAL_Delay(10);
+			Transmitted_Data[4] = getRandomNumber() + 1;
+			Transmitted_Data[5] = getRandomNumber() - 1;
+			Transmitted_Data[6] = getRandomNumber() + 4;
+			Transmitted_Data[7] = getRandomNumber() - 1;
+			HAL_Delay(12);
 
-			if(RxData[1] == 4) {
+			if(RxData[1] == 2) {
 				HAL_CAN_AddTxMessage(&hcan, &TxHeader, Transmitted_Data, &TxMailbox);
 				RxData[1] = 0;
-				HAL_Delay(10);
+				HAL_Delay(12);
 			}
 
 			a++;
+			if(a == 60) {
+				a = 40;
+			}
 		}
 
 

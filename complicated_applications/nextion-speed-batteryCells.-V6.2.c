@@ -567,9 +567,9 @@ int main(void)
 		  // BİRİNCİ BMS PAKETİNİ GEÇİR:
 		  TxData[1] = 1;
 		  HAL_CAN_AddTxMessage(&hcan, &TxHeader, TxData, &TxMailbox);
-		  HAL_Delay(20);
+		  HAL_Delay(50);
 		  HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &receiver_structure, RxData);
-		  HAL_Delay(20);
+		  HAL_Delay(50);
 		  if(RxData[0] == 1) {
 			  loraSendData[3] = RxData[1]; // CELL 1
 			  loraSendData[4] = RxData[2]; // CELL 2
@@ -577,16 +577,16 @@ int main(void)
 			  loraSendData[6] = RxData[4]; // CELL 4
 			  loraSendData[7] = RxData[5]; // CELL 5
 		  }
-		  HAL_Delay(30);
+		  HAL_Delay(50);
 		  clearRxData();
 
 
 		  // İKİNCİ BMS PAKETİNİ GEÇİR:
 		  TxData[1] = 2;
 		  HAL_CAN_AddTxMessage(&hcan, &TxHeader, TxData, &TxMailbox);
-		  HAL_Delay(20);
+		  HAL_Delay(50);
 		  HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &receiver_structure, RxData);
-		  HAL_Delay(20);
+		  HAL_Delay(50);
 		  if(RxData[0] == 2) {
 			  loraSendData[8]  = RxData[1]; // CELL 1
 			  loraSendData[9]  = RxData[2]; // CELL 2
@@ -594,16 +594,16 @@ int main(void)
 			  loraSendData[11] = RxData[4]; // CELL 4
 			  loraSendData[12] = RxData[5]; // CELL 1
 		  }
-		  HAL_Delay(30);
+		  HAL_Delay(50);
 		  clearRxData();
 
 
 		  // ÜÇÜNCÜ BMS PAKETİNİ GEÇİR:
 		  TxData[1] = 3;
 		  HAL_CAN_AddTxMessage(&hcan, &TxHeader, TxData, &TxMailbox);
-		  HAL_Delay(20);
+		  HAL_Delay(50);
 		  HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &receiver_structure, RxData);
-		  HAL_Delay(20);
+		  HAL_Delay(50);
 		  if(RxData[0] == 3) {
 			  loraSendData[13] = RxData[1];
 			  loraSendData[14] = RxData[2];
@@ -611,16 +611,16 @@ int main(void)
 			  loraSendData[16] = RxData[4];
 			  loraSendData[17] = RxData[5];
 		  }
-		  HAL_Delay(30);
+		  HAL_Delay(50);
 		  clearRxData();
 
 
 		  // DÖRDÜNCÜ BMS PAKETİNİ GEÇİR:
 		  TxData[1] = 4;
 		  HAL_CAN_AddTxMessage(&hcan, &TxHeader, TxData, &TxMailbox);
-		  HAL_Delay(20);
+		  HAL_Delay(50);
 		  HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &receiver_structure, RxData);
-		  HAL_Delay(20);
+		  HAL_Delay(50);
 		  if(RxData[0] == 4) {
 			  loraSendData[18] = RxData[1];
 			  loraSendData[19] = RxData[2];

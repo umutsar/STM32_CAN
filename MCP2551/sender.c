@@ -103,9 +103,7 @@ int main(void)
   TxHeader.IDE = CAN_ID_STD;
   TxHeader.RTR = CAN_RTR_DATA;
   TxHeader.StdId = 0X406;
-
-HAL_CAN_Start(&hcan);
-
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
